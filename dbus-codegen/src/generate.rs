@@ -418,17 +418,18 @@ fn write_intf_client(s: &mut String, i: &Intf, opts: &GenOpts) -> Result<(), Box
         *s += "    }\n";
     }
 
+    let value_expr = if opts.connectiontype == ConnectionType::Blocking { "arg::Variant(value)" } else { "value" };
+
     for p in i.props.iter().filter(|p| p.can_set()) {
         *s += "\n";
         write_prop_decl(s, &p, opts, true)?;
         *s += " {\n";
-        *s += &format!("        <Self as {}>::set(&self, \"{}\", \"{}\", value)\n", propintf, i.origname, p.name);
+        *s += &format!("        <Self as {}>::set(&self, \"{}\", \"{}\", {})\n", propintf, i.origname, p.name, value_expr);
         *s += "    }\n";
     }
 
     *s += "}\n";
     Ok(())
-
 }
 
 fn write_signal(s: &mut String, i: &Intf, ss: &Signal) -> Result<(), Box<dyn error::Error>> {
